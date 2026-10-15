@@ -93,9 +93,11 @@ export class Student {
     //   (opcional: un estudiante puede no tener programa; si se borra el programa, queda en NULL)
 
     @ManyToOne(
-        () => Program
-        (program), Student.program
+        () => Program,
+        (program) => program.students,
+        {nullable: true ,onDelete: "CASCADE"}
     )
+    program?: Program;
 
     @BeforeInsert()
     checkNicknameInsert(){
