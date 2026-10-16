@@ -3,17 +3,17 @@
 //   - code: string de 3 a 6 letras MAYÚSCULAS (ej. "SIS", "MED")
 //   - credits: entero positivo
 
-import { IsInt, IsPositive, IsString, Max, Min } from "class-validator";
+import { IsInt, IsPositive, IsString, Max, MaxLength, Min, MinLength } from "class-validator";
 
 export class CreateProgramDto {
 
     @IsString()
-    @Min(3)
+    @MinLength(3)
     name: string;
 
     @IsString()
-    @Min(3)
-    @Max(6)
+    @MinLength(3)
+    @MaxLength(6)
     code: string;
 
     @IsInt()

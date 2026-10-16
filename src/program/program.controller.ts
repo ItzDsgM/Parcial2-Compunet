@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Query } from '@nestjs/common';
 import { ProgramService } from './program.service';
 import { Auth } from 'src/user/decorators/auth.decorator';
 import { CreateProgramDto } from './dto/create-program.dto';
@@ -7,6 +7,7 @@ import { User } from 'src/user/entities/user.entity';
 import { PaginationDto } from 'src/student/dto/pagination.dto';
 import { ValidRoles } from 'src/user/enums/valid-roles.enum';
 import { BulkCreateProgramDto } from './dto/bulk-create-program.dto';
+import { AssignStudentsDto } from './dto/assign-students.dto';
 
 @Controller('program')
 export class ProgramController {
@@ -26,16 +27,16 @@ export class ProgramController {
   // TODO Reto 2: GET    /api/program/:id           -> programa con sus estudiantes
   @Get(":term")
   getProgram(@Param("term") term: string){
-
+    return this.programService.getProgram(term);
   }
   // TODO Reto 2: PATCH  /api/program/:id/students  -> agregar estudiantes (acumulativo)
   @Patch(":id/students")
   @Auth(ValidRoles.admin)
-  addStudents(@Param()){
-
+  addStudents(@Param("id", ParseUUIDPipe) id: string, @Body() assignStudents: AssignStudentsDto){
+    return this.programService.addStudents(id, assignStudents)
   }
   // TODO Reto 3: POST   /api/program/bulk          -> crear programas en lote (todo o nada)
-  @Post()
+  @Post('bulk')
   @Auth(ValidRoles.admin)
   createBulk(bulkCreateProgramDto: BulkCreateProgramDto, user: User){
     return this.programService.bulkCreate(bulkCreateProgramDto, user);

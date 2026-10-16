@@ -11,7 +11,13 @@
 
 import { Student } from '../../student/entities/student.entity';
 import { User } from '../../user/entities/user.entity';
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Program {
@@ -31,20 +37,13 @@ export class Program {
   code: string;
 
   @Column({
-    type: 'number',
+    type: 'int',
   })
-  credits: int;
+  credits: number;
 
+  @OneToMany(() => Student, (student) => student.program)
+  students?: Student[];
 
-  @OneToMany(
-    () => Student,
-    (student) => student.program,
-  )
-  students?: Student[]
-
-  @ManyToOne(
-    () => User,
-    {nullable: true}
-  )
+  @ManyToOne(() => User, { nullable: true })
   createdBy?: User;
 }

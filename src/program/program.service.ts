@@ -27,9 +27,6 @@ export class ProgramService {
     @InjectRepository(Program)
     private readonly programrRepository: Repository<Program>,
 
-    @InjectRepository(Student)
-    private readonly studentRepositoty: Repository<Student>,
-
     private readonly datasource: DataSource,
   ) {}
 
@@ -59,7 +56,7 @@ export class ProgramService {
   }
 
   // TODO Reto 2: findOne(id) -> programa con sus estudiantes, 404 si no existe
-  async findOne(term: string) {
+  async getProgram(term: string) {
     let program: Program | null;
 
     if (isUUID(term)) {
@@ -86,22 +83,22 @@ export class ProgramService {
   //   traer los actuales -> combinar con los nuevos -> guardar la lista completa.
   //   Si algún id no existe: 404 y rollback.
 
-  async addMembers(id: string, assignStudents: AssignStudentsDto) {
-    const program = await this.findOne(id);
+  async addStudents(id: string, assignStudents: AssignStudentsDto) {
+    const program = await this.getProgram(id);
 
     const queryRunner = this.datasource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      for (const email of assignStudents.studentIds) {
+      for (const studentId of assignStudents.studentIds) {
         const result = await queryRunner.manager.update(
           Student,
-          { email },
+          { studentId },
           { program: { id } },
         );
         if (!result.affected)
-          throw new NotFoundException(`Student with email ${email} not found`);
+          throw new NotFoundException(`Student with id ${id} not found`);
       }
 
       await queryRunner.commitTransaction();
@@ -112,7 +109,7 @@ export class ProgramService {
       await queryRunner.release();
     }
 
-    return this.findOne(id);
+    return this.getProgram(id);
   }
 
   // TODO Reto 3: bulkCreate(bulkCreateProgramDto, user) -> crea todos los programas o ninguno
