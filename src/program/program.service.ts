@@ -92,10 +92,7 @@ export class ProgramService {
 
     try {
       for (const id of assignStudents.studentIds) {
-        const result = await queryRunner.manager.update(
-          Student,
-          { id },
-          { program: { id } },
+        const result = await queryRunner.manager.update(Student, programId, {program : {id}}
         );
         if (!result.affected)
           throw new NotFoundException(`Student with id ${id} not found`);
