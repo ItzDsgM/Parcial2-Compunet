@@ -25,7 +25,7 @@ export class ProgramService {
 
   constructor(
     @InjectRepository(Program)
-    private readonly programrRepository: Repository<Program>,
+    private readonly programRepository: Repository<Program>,
 
     private readonly datasource: DataSource,
   ) {}
@@ -35,11 +35,11 @@ export class ProgramService {
 
   async create(createProgramDto: CreateProgramDto, user: User) {
     try {
-      const program = this.programrRepository.create({
+      const program = this.programRepository.create({
         ...createProgramDto,
         createdBy: user,
       });
-      await this.programrRepository.save(program);
+      await this.programRepository.save(program);
       return program;
     } catch (error) {
       this.handleException(error);
@@ -49,7 +49,7 @@ export class ProgramService {
   // TODO Reto 1: findAll(paginationDto) -> lista paginada (limit / skip)
   getAll(paginationDto: PaginationDto) {
     const { limit, skip } = paginationDto;
-    return this.programrRepository.find({
+    return this.programRepository.find({
       take: limit,
       skip: skip,
     });
@@ -60,12 +60,12 @@ export class ProgramService {
     let program: Program | null;
 
     if (isUUID(term)) {
-      program = await this.programrRepository.findOne({
+      program = await this.programRepository.findOne({
         where: { id: term },
         relations: { students: true },
       });
     } else {
-      program = await this.programrRepository
+      program = await this.programRepository
         .createQueryBuilder('program')
         .where('UPPER(program.name) = :name', { name: term.toUpperCase() })
         .leftJoinAndSelect('program.students', 'students')
@@ -83,18 +83,18 @@ export class ProgramService {
   //   traer los actuales -> combinar con los nuevos -> guardar la lista completa.
   //   Si algún id no existe: 404 y rollback.
 
-  async addStudents(id: string, assignStudents: AssignStudentsDto) {
-    const program = await this.getProgram(id);
+  async addStudents(programId: string, assignStudents: AssignStudentsDto) {
+    const program = await this.getProgram(programId);
 
     const queryRunner = this.datasource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      for (const studentId of assignStudents.studentIds) {
+      for (const id of assignStudents.studentIds) {
         const result = await queryRunner.manager.update(
           Student,
-          { studentId },
+          { id },
           { program: { id } },
         );
         if (!result.affected)
@@ -109,7 +109,7 @@ export class ProgramService {
       await queryRunner.release();
     }
 
-    return this.getProgram(id);
+    return this.getProgram(programId);
   }
 
   // TODO Reto 3: bulkCreate(bulkCreateProgramDto, user) -> crea todos los programas o ninguno

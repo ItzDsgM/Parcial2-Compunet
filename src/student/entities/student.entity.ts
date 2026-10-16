@@ -91,11 +91,10 @@ export class Student {
 
     // TODO Reto 2: relación N:1 con Program -> propiedad `program?: Program`
     //   (opcional: un estudiante puede no tener programa; si se borra el programa, queda en NULL)
-
     @ManyToOne(
         () => Program,
         (program) => program.students,
-        {nullable: true ,onDelete: "CASCADE"}
+        {nullable: true}
     )
     program?: Program;
 
